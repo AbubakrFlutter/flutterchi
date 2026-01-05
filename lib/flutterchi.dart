@@ -32,11 +32,12 @@
 library flutterchi;
 
 /// Paket versiyasi
-const String versiya = '1.1.0';
+const String versiya = '1.2.0';
 
 /// Paket nomi
 const String paketNomi = 'flutterchi';
 
 /// Paket tavsifi
-const String tavsif = 'Flutter loyihalarini avtomatik qurish uchun kuchli CLI tool. '
+const String tavsif =
+    'Flutter loyihalarini avtomatik qurish uchun kuchli CLI tool. '
     'Oddiy buyruqlar bilan APK, App Bundle va Windows EXE yarating.';

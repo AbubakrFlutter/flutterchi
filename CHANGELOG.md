@@ -5,7 +5,7 @@ Bu loyihadagi barcha muhim o'zgarishlar shu faylda qayd etiladi.
 Format [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) asosida,
 va bu loyiha [Semantic Versioning](https://semver.org/spec/v2.0.0.html) ga rioya qiladi.
 
-## [1.1.0] - 2025-01-06
+## [1.2.0] - 2025-01-06
 
 ### Qo'shildi / Added
 - ✅ To'liq O'zbekcha tarjima (Inglizcha bilan birga)

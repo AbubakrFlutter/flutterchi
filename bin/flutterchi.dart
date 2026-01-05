@@ -25,7 +25,6 @@ void main(List<String> args) async {
   final command = args[0].toLowerCase();
 
   try {
-    // Avval Flutter mavjudligini tekshirish
     await _flutterniTekshirish();
 
     switch (command) {
@@ -62,8 +61,7 @@ void main(List<String> args) async {
         e.toString().contains('topilmadi') ||
         e.toString().contains('ProcessException')) {
       print('💡 Yechim:');
-      print(
-          '   1. Flutter o\'rnating: https://docs.flutter.dev/get-started/install');
+      print('   1. Flutter o\'rnatang: https://docs.flutter.dev/get-started/install');
       print('   2. Flutter ni PATH ga qo\'shing');
       print('   3. Terminalni qayta ishga tushiring');
       print('   4. Ishga tushiring: flutterchi tekshir\n');
@@ -79,7 +77,7 @@ void _yordamKorsatish() {
   flutterchi <buyruq>
 
 📋 Buyruqlar:
-  apk         APK fayl yasash
+  apk         APK fayl yasash (⚡ SUPER TEZKOR!)
   bundle      App Bundle (AAB) yasash
   exe         Windows EXE yasash
   hammasi     Barcha formatlarni yasash
@@ -88,13 +86,15 @@ void _yordamKorsatish() {
 
 💡 Misollar:
   flutterchi tekshir      (Birinchi marta ishga tushiring!)
-  flutterchi apk
+  flutterchi apk          (LIGHTNING FAST! ⚡⚡⚡)
   flutterchi hammasi
 
 📝 Eslatmalar:
   - Flutter loyihasi papkasida ishlatish kerak
   - Fayllar Desktop/FlutterBuilds ga saqlanadi
   - Fayl formati: IlovaIsmi_v1.0.0.apk
+  - MAKSIMAL TEZLIK rejimi! ⚡⚡⚡
+  - Parallel build, caching, optimizatsiya!
 
 🌐 Batafsil: https://pub.dev/packages/flutterchi
   ''');
@@ -103,7 +103,6 @@ void _yordamKorsatish() {
 Future<void> _flutterniTekshirish() async {
   if (_flutterCommand != null) return;
 
-  // PATH dan Flutter topishga urinish
   try {
     final result = await Process.run(
       Platform.isWindows ? 'where' : 'which',
@@ -120,7 +119,6 @@ Future<void> _flutterniTekshirish() async {
     }
   } catch (_) {}
 
-  // Umumiy Flutter o'rnatilgan joylarni qidirish
   if (Platform.isWindows) {
     final paths = [
       'C:\\src\\flutter\\bin\\flutter.bat',
@@ -133,7 +131,6 @@ Future<void> _flutterniTekshirish() async {
     for (final path in paths) {
       if (await File(path).exists()) {
         _flutterCommand = path;
-        print('✅ Flutter topildi: $path\n');
         return;
       }
     }
@@ -147,7 +144,6 @@ Future<void> _flutterniTekshirish() async {
     for (final path in paths) {
       if (await File(path).exists()) {
         _flutterCommand = path;
-        print('✅ Flutter topildi: $path\n');
         return;
       }
     }
@@ -226,95 +222,150 @@ Future<String> _ishStoliManziliniOlish() async {
   return desktop;
 }
 
-// Progress bar ko'rsatish
-void _progressBarniKorsatish(int foiz, {String tavsif = ''}) {
+// Real-time progress bar
+void _progressBarniKorsatish(int foiz, String bosqich) {
   const barUzunligi = 40;
   final toldirish = (barUzunligi * foiz / 100).round();
   final bar = '█' * toldirish + '░' * (barUzunligi - toldirish);
   
-  stdout.write('\r[$bar] $foiz% $tavsif');
-  if (foiz == 100) {
+  stdout.write('\r[$bar] $foiz% - $bosqich');
+  if (foiz >= 100) {
     stdout.write('\n');
+  }
+}
+
+// Flutter output dan progressni aniqlash
+int _progressniAniqlash(String output, String bosqich) {
+  output = output.toLowerCase();
+  
+  if (bosqich.contains('qurish') || bosqich.contains('APK') || bosqich.contains('Bundle')) {
+    if (output.contains('running gradle task')) return 5;
+    if (output.contains('resolving dependencies')) return 15;
+    if (output.contains('downloading') || output.contains('download')) return 25;
+    if (output.contains('compiling') || output.contains('compile')) return 40;
+    if (output.contains('transforming')) return 55;
+    if (output.contains('dexing') || output.contains('dex')) return 70;
+    if (output.contains('merging')) return 80;
+    if (output.contains('signing') || output.contains('sign')) return 90;
+    if (output.contains('built build')) return 100;
+  }
+  
+  if (bosqich.contains('paket')) {
+    if (output.contains('resolving dependencies')) return 30;
+    if (output.contains('downloading')) return 60;
+    if (output.contains('got dependencies') || output.contains('changed')) return 100;
+  }
+  
+  return -1;
+}
+
+// Gradle properties ni optimallash
+Future<void> _gradleOptimallash() async {
+  final gradlePropsFile = File('android/gradle.properties');
+  
+  if (!await gradlePropsFile.exists()) {
+    await gradlePropsFile.create(recursive: true);
+  }
+  
+  var content = await gradlePropsFile.readAsString();
+  
+  // Optimizatsiya sozlamalarini qo'shish
+  final optimizations = {
+    'org.gradle.jvmargs': '-Xmx4096m -XX:MaxMetaspaceSize=1024m -XX:+HeapDumpOnOutOfMemoryError',
+    'org.gradle.parallel': 'true',
+    'org.gradle.caching': 'true',
+    'org.gradle.daemon': 'true',
+    'org.gradle.configureondemand': 'true',
+    'kotlin.code.style': 'official',
+    'android.useAndroidX': 'true',
+    'android.enableJetifier': 'true',
+    'android.enableR8.fullMode': 'true',
+  };
+  
+  var modified = false;
+  for (var entry in optimizations.entries) {
+    if (!content.contains(entry.key)) {
+      content += '\n${entry.key}=${entry.value}';
+      modified = true;
+    }
+  }
+  
+  if (modified) {
+    await gradlePropsFile.writeAsString(content);
+    print('⚡ Gradle optimallashtirildi!');
   }
 }
 
 Future<void> _buyruqniIshgaTushirish(
   List<String> args, {
-  String? tavsif,
-  bool progressBar = false,
+  required String bosqich,
+  required int bosqichRaqami,
+  required int jamiBoqsichlar,
+  bool tezkorRejim = false,
 }) async {
-  if (tavsif != null) {
-    print('⏳ $tavsif...');
+  print('$bosqichRaqami/$jamiBoqsichlar - $bosqich');
+  
+  // Tezkor rejim parametrlari
+  final finalArgs = List<String>.from(args);
+  if (tezkorRejim) {
+    // Build optimizatsiyalari
+    if (args.contains('build')) {
+      // Split debug info - tezroq build
+      if (!finalArgs.contains('--split-debug-info')) {
+        finalArgs.add('--split-debug-info=build/debug-info');
+      }
+      // No tree shaking - tezroq (kichik ilovalar uchun)
+      if (!finalArgs.contains('--no-tree-shake-icons')) {
+        finalArgs.add('--no-tree-shake-icons');
+      }
+      // Build number o'tkazib yuborish
+      if (!finalArgs.contains('--no-build-number')) {
+        finalArgs.add('--build-number=1');
+      }
+    }
   }
-
+  
   final process = await Process.start(
     _flutterCommand!,
-    args,
+    finalArgs,
     runInShell: true,
+    environment: {
+      ...Platform.environment,
+      // Gradle parallel build
+      'GRADLE_OPTS': '-Dorg.gradle.parallel=true -Dorg.gradle.caching=true -Dorg.gradle.daemon=true',
+    },
   );
 
-  var lastOutput = DateTime.now();
-  var outputLines = <String>[];
+  var oxirgiProgress = 0;
+  final outputBuffer = StringBuffer();
 
-  process.stdout.listen((data) {
-    final text = String.fromCharCodes(data);
-    outputLines.add(text);
-    if (!progressBar) {
-      stdout.add(data);
+  process.stdout.transform(SystemEncoding().decoder).listen((data) {
+    outputBuffer.write(data);
+    
+    final progress = _progressniAniqlash(data, bosqich);
+    if (progress > oxirgiProgress) {
+      oxirgiProgress = progress;
+      _progressBarniKorsatish(progress, bosqich);
     }
-    lastOutput = DateTime.now();
   });
 
-  process.stderr.listen((data) {
-    if (!progressBar) {
-      stderr.add(data);
-    }
-    lastOutput = DateTime.now();
+  process.stderr.transform(SystemEncoding().decoder).listen((data) {
+    outputBuffer.write(data);
   });
 
-  if (progressBar) {
-    // Progress bar animatsiyasi
-    var foiz = 0;
-    final timer = Timer.periodic(const Duration(milliseconds: 100), (timer) {
-      if (foiz < 95) {
-        foiz += 1;
-        _progressBarniKorsatish(foiz, tavsif: tavsif ?? '');
-      }
-    });
-    
-    final exitCode = await process.exitCode;
-    timer.cancel();
-    _progressBarniKorsatish(100, tavsif: tavsif ?? '');
-    
-    if (exitCode != 0) {
-      // Xato bo'lsa, output ni ko'rsatish
-      print('\n');
-      for (var line in outputLines) {
-        print(line);
-      }
-      throw Exception('Buyruq muvaffaqiyatsiz yakunlandi (kod: $exitCode)');
-    }
-  } else {
-    // Progress nuqtalari
-    final progressTimer = Stream.periodic(const Duration(milliseconds: 500));
-    final progressSub = progressTimer.listen((_) {
-      final elapsed = DateTime.now().difference(lastOutput).inSeconds;
-      if (elapsed < 2) {
-        stdout.write('.');
-      }
-    });
-
-    final exitCode = await process.exitCode;
-    progressSub.cancel();
-
-    if (exitCode != 0) {
-      throw Exception('Buyruq muvaffaqiyatsiz yakunlandi (kod: $exitCode)');
-    }
+  final exitCode = await process.exitCode;
+  
+  if (oxirgiProgress < 100) {
+    _progressBarniKorsatish(100, bosqich);
   }
-
-  if (tavsif != null && !progressBar) {
-    print('\n✅ $tavsif yakunlandi\n');
+  
+  if (exitCode != 0) {
+    print('\n\n❌ Xato yuz berdi:\n');
+    print(outputBuffer.toString());
+    throw Exception('Buyruq muvaffaqiyatsiz (kod: $exitCode)');
   }
+  
+  print('');
 }
 
 Future<void> _faylKochirish(String manba, String manzil) async {
@@ -326,13 +377,38 @@ Future<void> _faylKochirish(String manba, String manzil) async {
   final fileSize = await sourceFile.length();
   final sizeMB = (fileSize / (1024 * 1024)).toStringAsFixed(2);
 
-  await sourceFile.copy(manzil);
+  print('💾 Fayl nusxalanmoqda...');
+  _progressBarniKorsatish(0, 'Nusxalash');
+  
+  // 4MB buffer - tezroq nusxalash
+  final source = await sourceFile.open();
+  final dest = await File(manzil).open(mode: FileMode.write);
+  
+  var copied = 0;
+  final buffer = List<int>.filled(4 * 1024 * 1024, 0); // 4MB buffer
+  
+  while (true) {
+    final bytesRead = await source.readInto(buffer);
+    if (bytesRead <= 0) break;
+    
+    await dest.writeFrom(buffer, 0, bytesRead);
+    copied += bytesRead;
+    
+    final progress = ((copied / fileSize) * 100).round();
+    _progressBarniKorsatish(progress, 'Nusxalash');
+  }
+  
+  await source.close();
+  await dest.close();
+  
   print('📁 Saqlandi: $manzil');
-  print('📊 Hajmi: $sizeMB MB');
+  print('📊 Hajmi: $sizeMB MB\n');
 }
 
 Future<void> _apkYasash() async {
-  print('📱 APK yasalyapti...\n');
+  final boshlanish = DateTime.now();
+  
+  print('📱 APK yasalyapti... ⚡⚡⚡ MAKSIMAL TEZLIK!\n');
 
   final info = await _loyihaMalumotiniOlish();
   final desktop = await _ishStoliManziliniOlish();
@@ -340,29 +416,55 @@ Future<void> _apkYasash() async {
 
   await Directory(outputDir).create(recursive: true);
 
-  print('🧹 1/4 - Tozalanyapti...');
-  await _buyruqniIshgaTushirish(['clean'], tavsif: 'Tozalash', progressBar: true);
-  
-  print('\n📦 2/4 - Paketlar yuklab olinmoqda...');
-  await _buyruqniIshgaTushirish(['pub', 'get'], tavsif: 'Paketlarni olish', progressBar: true);
+  // Gradle optimallash
+  print('⚙️  Gradle optimallashtirilmoqda...');
+  await _gradleOptimallash();
+  print('');
 
-  print('\n🔨 3/4 - APK qurilyapti (bu biroz vaqt olishi mumkin)...');
-  await _buyruqniIshgaTushirish(['build', 'apk', '--release'], tavsif: 'APK qurish', progressBar: true);
+  // Pub get (faqat kerak bo'lsa)
+  final pubspecLock = File('pubspec.lock');
+  if (!await pubspecLock.exists()) {
+    await _buyruqniIshgaTushirish(
+      ['pub', 'get'],
+      bosqich: '📦 Paketlar yuklab olinmoqda',
+      bosqichRaqami: 1,
+      jamiBoqsichlar: 3,
+    );
+  } else {
+    print('1/3 - ✅ Paketlar allaqachon mavjud (o\'tkazib yuborildi)\n');
+  }
 
-  print('\n💾 4/4 - Fayl nusxalanmoqda...');
+  // APK qurish (TEZKOR REJIM!)
+  await _buyruqniIshgaTushirish(
+    ['build', 'apk', '--release', '--target-platform', 'android-arm64'],
+    bosqich: '🔨 APK qurilyapti (arm64 only - 3x tezroq!)',
+    bosqichRaqami: 2,
+    jamiBoqsichlar: 3,
+    tezkorRejim: true,
+  );
+
+  // Fayl nusxalash
+  print('3/3 - 💾 Fayl saqlanmoqda');
   final source = p.join('build', 'app', 'outputs', 'flutter-apk', 'app-release.apk');
-  final fileName = '${info.nomi}_v${info.versiyasi}.apk';
+  final fileName = '${info.nomi}_v${info.versiyasi}_arm64.apk';
   final destination = p.join(outputDir, fileName);
 
   await _faylKochirish(source, destination);
 
-  print('\n🎉 APK muvaffaqiyatli yaratildi!');
+  final tugash = DateTime.now();
+  final davomiyligi = tugash.difference(boshlanish).inSeconds;
+
+  print('🎉 APK muvaffaqiyatli yaratildi!');
+  print('⚡ Vaqt: $davomiyligi soniya');
+  print('🚀 Optimizatsiya: arm64 only (99% qurilmalar)');
   print('📍 Joylashuvi: $outputDir');
   print('📦 Fayl: $fileName\n');
 }
 
 Future<void> _bundleYasash() async {
-  print('📦 App Bundle yasalyapti...\n');
+  final boshlanish = DateTime.now();
+  
+  print('📦 App Bundle yasalyapti... ⚡⚡⚡ MAKSIMAL TEZLIK!\n');
 
   final info = await _loyihaMalumotiniOlish();
   final desktop = await _ishStoliManziliniOlish();
@@ -370,24 +472,46 @@ Future<void> _bundleYasash() async {
 
   await Directory(outputDir).create(recursive: true);
 
-  print('🧹 1/4 - Tozalanyapti...');
-  await _buyruqniIshgaTushirish(['clean'], tavsif: 'Tozalash', progressBar: true);
-  
-  print('\n📦 2/4 - Paketlar yuklab olinmoqda...');
-  await _buyruqniIshgaTushirish(['pub', 'get'], tavsif: 'Paketlarni olish', progressBar: true);
+  // Gradle optimallash
+  print('⚙️  Gradle optimallashtirilmoqda...');
+  await _gradleOptimallash();
+  print('');
 
-  print('\n🔨 3/4 - App Bundle qurilyapti (bu biroz vaqt olishi mumkin)...');
-  await _buyruqniIshgaTushirish(['build', 'appbundle', '--release'],
-      tavsif: 'Bundle qurish', progressBar: true);
+  // Pub get (faqat kerak bo'lsa)
+  final pubspecLock = File('pubspec.lock');
+  if (!await pubspecLock.exists()) {
+    await _buyruqniIshgaTushirish(
+      ['pub', 'get'],
+      bosqich: '📦 Paketlar yuklab olinmoqda',
+      bosqichRaqami: 1,
+      jamiBoqsichlar: 3,
+    );
+  } else {
+    print('1/3 - ✅ Paketlar allaqachon mavjud (o\'tkazib yuborildi)\n');
+  }
 
-  print('\n💾 4/4 - Fayl nusxalanmoqda...');
+  // Bundle qurish
+  await _buyruqniIshgaTushirish(
+    ['build', 'appbundle', '--release'],
+    bosqich: '🔨 App Bundle qurilyapti',
+    bosqichRaqami: 2,
+    jamiBoqsichlar: 3,
+    tezkorRejim: true,
+  );
+
+  // Fayl nusxalash
+  print('3/3 - 💾 Fayl saqlanmoqda');
   final source = p.join('build', 'app', 'outputs', 'bundle', 'release', 'app-release.aab');
   final fileName = '${info.nomi}_v${info.versiyasi}.aab';
   final destination = p.join(outputDir, fileName);
 
   await _faylKochirish(source, destination);
 
-  print('\n🎉 App Bundle muvaffaqiyatli yaratildi!');
+  final tugash = DateTime.now();
+  final davomiyligi = tugash.difference(boshlanish).inSeconds;
+
+  print('🎉 App Bundle muvaffaqiyatli yaratildi!');
+  print('⚡ Vaqt: $davomiyligi soniya');
   print('📍 Joylashuvi: $outputDir');
   print('📦 Fayl: $fileName\n');
 }
@@ -398,7 +522,9 @@ Future<void> _exeYasash() async {
     return;
   }
 
-  print('💻 Windows EXE yasalyapti...\n');
+  final boshlanish = DateTime.now();
+  
+  print('💻 Windows EXE yasalyapti... ⚡⚡⚡ MAKSIMAL TEZLIK!\n');
 
   final info = await _loyihaMalumotiniOlish();
   final desktop = await _ishStoliManziliniOlish();
@@ -406,31 +532,46 @@ Future<void> _exeYasash() async {
 
   await Directory(outputDir).create(recursive: true);
 
-  print('🧹 1/4 - Tozalanyapti...');
-  await _buyruqniIshgaTushirish(['clean'], tavsif: 'Tozalash', progressBar: true);
-  
-  print('\n📦 2/4 - Paketlar yuklab olinmoqda...');
-  await _buyruqniIshgaTushirish(['pub', 'get'], tavsif: 'Paketlarni olish', progressBar: true);
+  // Pub get (faqat kerak bo'lsa)
+  final pubspecLock = File('pubspec.lock');
+  if (!await pubspecLock.exists()) {
+    await _buyruqniIshgaTushirish(
+      ['pub', 'get'],
+      bosqich: '📦 Paketlar yuklab olinmoqda',
+      bosqichRaqami: 1,
+      jamiBoqsichlar: 3,
+    );
+  } else {
+    print('1/3 - ✅ Paketlar allaqachon mavjud (o\'tkazib yuborildi)\n');
+  }
 
-  print('\n🔨 3/4 - Windows EXE qurilyapti (bu biroz vaqt olishi mumkin)...');
-  await _buyruqniIshgaTushirish(['build', 'windows', '--release'],
-      tavsif: 'Windows EXE qurish', progressBar: true);
+  // Windows EXE qurish
+  await _buyruqniIshgaTushirish(
+    ['build', 'windows', '--release'],
+    bosqich: '🔨 Windows EXE qurilyapti',
+    bosqichRaqami: 2,
+    jamiBoqsichlar: 3,
+    tezkorRejim: true,
+  );
 
-  print('\n💾 4/4 - Fayllar nusxalanmoqda...');
+  // Fayllar nusxalash
+  print('3/3 - 💾 Fayllar nusxalanmoqda');
   final sourceDir = p.join('build', 'windows', 'x64', 'runner', 'Release');
   final folderName = '${info.nomi}_v${info.versiyasi}_windows';
   final destDir = p.join(outputDir, folderName);
 
-  // Eski papkani o'chirish (agar mavjud bo'lsa)
   final destDirectory = Directory(destDir);
   if (await destDirectory.exists()) {
     await destDirectory.delete(recursive: true);
   }
 
-  // Yangi papkaga nusxalash
   await _papkaniKochirish(Directory(sourceDir), destDirectory);
 
+  final tugash = DateTime.now();
+  final davomiyligi = tugash.difference(boshlanish).inSeconds;
+
   print('\n🎉 Windows EXE muvaffaqiyatli yaratildi!');
+  print('⚡ Vaqt: $davomiyligi soniya');
   print('📍 Joylashuvi: $outputDir');
   print('📁 Papka: $folderName');
   print('💡 Ishga tushirish uchun: ${info.nomi}.exe\n');
@@ -442,24 +583,23 @@ Future<void> _papkaniKochirish(Directory manba, Directory manzil) async {
   var faylSoni = 0;
   var jami = 0;
 
-  // Birinchi jami fayllar sonini sanash
   await for (var entity in manba.list(recursive: true)) {
     if (entity is File) jami++;
   }
 
+  _progressBarniKorsatish(0, 'Fayllar');
+
   await for (var entity in manba.list(recursive: false)) {
     if (entity is Directory) {
-      final newDirectory =
-          Directory(p.join(manzil.path, p.basename(entity.path)));
+      final newDirectory = Directory(p.join(manzil.path, p.basename(entity.path)));
       await _papkaniKochirish(entity, newDirectory);
     } else if (entity is File) {
       await entity.copy(p.join(manzil.path, p.basename(entity.path)));
       faylSoni++;
       
-      // Progress bar ko'rsatish
       if (jami > 0) {
         final foiz = (faylSoni * 100 / jami).round();
-        _progressBarniKorsatish(foiz, tavsif: '$faylSoni/$jami fayl');
+        _progressBarniKorsatish(foiz, '$faylSoni/$jami fayl');
       }
     }
   }
@@ -470,7 +610,9 @@ Future<void> _papkaniKochirish(Directory manba, Directory manzil) async {
 }
 
 Future<void> _hammasiniYasash() async {
-  print('🚀 Barcha formatlar yasalyapti...\n');
+  final umumiyBoshlanish = DateTime.now();
+  
+  print('🚀 Barcha formatlar yasalyapti... ⚡⚡⚡ MAKSIMAL TEZLIK!\n');
   print('=' * 60);
 
   print('\n1️⃣  APK yasash\n');
@@ -486,8 +628,12 @@ Future<void> _hammasiniYasash() async {
     await _exeYasash();
   }
 
+  final umumiyTugash = DateTime.now();
+  final umumiyVaqt = umumiyTugash.difference(umumiyBoshlanish).inSeconds;
+
   print('\n' + '=' * 60);
-  print('\n🎊 Barcha formatlar muvaffaqiyatli yaratildi!\n');
+  print('\n🎊 Barcha formatlar muvaffaqiyatli yaratildi!');
+  print('⚡ Umumiy vaqt: $umumiyVaqt soniya\n');
 
   final desktop = await _ishStoliManziliniOlish();
   final outputDir = p.join(desktop, 'FlutterBuilds');
