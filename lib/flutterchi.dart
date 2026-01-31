@@ -32,7 +32,7 @@
 library flutterchi;
 
 /// Paket versiyasi
-const String versiya = '1.2.0';
+const String versiya = '1.3.2';
 
 /// Paket nomi
 const String paketNomi = 'flutterchi';

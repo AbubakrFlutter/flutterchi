@@ -5,12 +5,27 @@ Bu loyihadagi barcha muhim o'zgarishlar shu faylda qayd etiladi.
 Format [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) asosida,
 va bu loyiha [Semantic Versioning](https://semver.org/spec/v2.0.0.html) ga rioya qiladi.
 
-## [1.2.0] - 2025-01-06
+## [1.3.2] - 2025-01-31
+
+### Yaxshilandi / Improved
+- ✅ Progress bar to'liq qayta yozildi - silliq va aniq
+- ✅ 50+ Gradle bosqich kalit so'zlari qo'shildi
+- ✅ Avtomatik progress tracking - har 3 soniyada yangilanadi
+- ✅ Real-time Gradle task ko'rsatish
+- ✅ Progress bar endi hech qachon qotib qolmaydi
+
+## [1.3.1] - 2025-01-31
+
+### Tuzatildi / Fixed
+- ✅ Gradle configuration-cache xatoligi tuzatildi (Kotlin plugin moslik muammosi)
+- ✅ Flutter 3.24+ versiyalari bilan to'liq moslik
+
+## [1.3.0] - 2025-01-06
 
 ### Qo'shildi / Added
 - ✅ To'liq O'zbekcha tarjima (Inglizcha bilan birga)
 - ✅ Real-time progress bar bilan jarayon ko'rsatkichi
-- ✅ 4 bosqichli qurish jarayoni (Tozalash, Paketlar, Qurish, Nusxalash)
+- ✅ 4 bosqichli qurish jarayoni (Paketlar, Qurish, Nusxalash)
 - ✅ Fayllar nusxalash vaqtida progress bar
 - ✅ Yangi `hammasi` buyrug'i (o'zbekcha)
 - ✅ Yangi `tekshir` buyrug'i (o'zbekcha)
@@ -23,15 +38,11 @@ va bu loyiha [Semantic Versioning](https://semver.org/spec/v2.0.0.html) ga rioya
 - ✅ Barcha funksiya nomlari o'zbekcha
 - ✅ Barcha output xabarlari ikki tilda
 
-### Texnik O'zgarishlar / Technical
-- O'zbek tilida funksiya nomlari: `_apkYasash()`, `_loyihaMalumotiniOlish()`
-- Progress bar funksiyasi: `_progressBarniKorsatish()`
-- Buyruq ishlatish funksiyasi: `_buyruqniIshgaTushirish()`
-- Papka nusxalash: `_papkaniKochirish()`
 
-## [1.0.0] - 2025-01-05
+## [1.2.0] - 2025-01-05
 
 ### Qo'shildi / Added
+- teroq quqish
 - Birinchi versiya chiqarildi
 - APK qurish buyrug'i
 - App Bundle (AAB) qurish buyrug'i

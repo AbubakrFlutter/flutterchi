@@ -1,6 +1,6 @@
 name: flutterchi
 description: Flutter loyihalarini avtomatik qurish uchun kuchli CLI tool. APK, App Bundle va Windows EXE ni oddiy buyruqlar bilan yarating. O'zbekcha qo'llab-quvvatlash, progress bar.
-version: 1.2.0
+version: 1.3.2
 repository: https://github.com/AbubakrFlutter/flutterchi
 issue_tracker: https://github.com/AbubakrFlutter/flutterchi/issues
 
