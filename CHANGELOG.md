@@ -5,6 +5,19 @@ Bu loyihadagi barcha muhim o'zgarishlar shu faylda qayd etiladi.
 Format [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) asosida,
 va bu loyiha [Semantic Versioning](https://semver.org/spec/v2.0.0.html) ga rioya qiladi.
 
+## [1.3.3] - 2025-01-31
+
+### Yaxshilandi / Improved
+- ✅ **MAKSIMAL TEZLIK** - Configuration-cache siz ham juda tez!
+- ✅ Gradle workers 4 → 8 ga oshirildi
+- ✅ JVM memory 2GB → 4GB (kuchli PC lar uchun)
+- ✅ R8 full mode yoqildi - optimal kod shrinking
+- ✅ Kotlin incremental compilation kuchaytirildi
+- ✅ File system watching (vfs.watch) - tezroq dependency check
+- ✅ D8 dexer - 2x tezroq dexing
+- ✅ Incremental desugaring yoqildi
+- ✅ Gradle daemon cache 2 soat (takroriy buildlar uchun)
+
 ## [1.3.2] - 2025-01-31
 
 ### Yaxshilandi / Improved

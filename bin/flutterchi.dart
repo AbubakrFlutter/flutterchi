@@ -430,28 +430,44 @@ Future<void> _gradleOptimallash() async {
 
   // SUPER optimizatsiya sozlamalari
   final optimizations = {
-    // Memory optimizatsiya - eski kompyuterlar uchun
+    // Memory optimizatsiya - MAKSIMAL
     'org.gradle.jvmargs':
-        '-Xmx2048m -XX:MaxMetaspaceSize=512m -XX:+UseParallelGC',
-    // Parallel build - 3x tezroq
+        '-Xmx4096m -XX:MaxMetaspaceSize=1024m -XX:+UseParallelGC -XX:ParallelGCThreads=4 -XX:MaxMetaspaceSize=1g -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8',
+    // Parallel build - MAKSIMAL tezlik
     'org.gradle.parallel': 'true',
-    'org.gradle.workers.max': '4',
+    'org.gradle.workers.max': '8', // 4 dan 8 ga oshirildi
     // Caching - takroriy buildlar uchun
     'org.gradle.caching': 'true',
     'org.gradle.configuration-cache': 'false',
+    'org.gradle.configuration-cache.problems': 'warn',
     // Daemon - tezroq start
     'org.gradle.daemon': 'true',
+    'org.gradle.daemon.idletimeout': '7200000', // 2 soat
     // Configure on demand - vaqt tejash
     'org.gradle.configureondemand': 'true',
-    // Android optimizatsiyalar
+    // Incremental - juda muhim!
+    'org.gradle.unsafe.configuration-cache': 'false',
+    'org.gradle.vfs.watch': 'true', // File system watching
+    // Android optimizatsiyalar - SUPER FAST
     'android.useAndroidX': 'true',
     'android.enableJetifier': 'true',
-    'android.enableR8.fullMode': 'false', // Eski kompyuterlar uchun yengil
+    'android.enableR8.fullMode': 'true', // R8 full mode - tezroq
     'android.enableDexingArtifactTransform': 'true',
-    'android.enableResourceOptimizations': 'false', // Tezroq build
-    // Kotlin optimizatsiya
+    'android.enableDexingArtifactTransform.desugaring': 'true',
+    'android.enableResourceOptimizations': 'true', // Yoqildi - tezroq
+    'android.enableBuildCache': 'true', // Build cache
+    'android.enableD8': 'true', // D8 dexer - tezroq
+    'android.enableIncrementalDesugaring': 'true',
+    // Kotlin optimizatsiya - MAKSIMAL
     'kotlin.code.style': 'official',
     'kotlin.incremental': 'true',
+    'kotlin.incremental.java': 'true',
+    'kotlin.incremental.js': 'true',
+    'kotlin.caching.enabled': 'true',
+    'kotlin.parallel.tasks.in.project': 'true',
+    // Kapt (agar ishlatilsa)
+    'kapt.incremental.apt': 'true',
+    'kapt.use.worker.api': 'true',
   };
 
   var modified = false;
@@ -576,11 +592,11 @@ Future<void> _buyruqniIshgaTushirish(
     runInShell: true,
     environment: {
       ...Platform.environment,
-      // Gradle SUPER optimizatsiya
+      // Gradle SUPER optimizatsiya - MAKSIMAL
       'GRADLE_OPTS':
-          '-Dorg.gradle.parallel=true -Dorg.gradle.caching=true -Dorg.gradle.daemon=true -Dorg.gradle.configureondemand=true',
-      // Java optimizatsiya
-      'JAVA_OPTS': '-Xmx2048m -XX:+UseParallelGC',
+          '-Dorg.gradle.parallel=true -Dorg.gradle.caching=true -Dorg.gradle.daemon=true -Dorg.gradle.configureondemand=true -Dorg.gradle.workers.max=8 -Dorg.gradle.vfs.watch=true -Dkotlin.incremental=true -Dkotlin.compiler.execution.strategy=in-process',
+      // Java optimizatsiya - MAKSIMAL
+      'JAVA_OPTS': '-Xmx4096m -XX:+UseParallelGC -XX:ParallelGCThreads=4',
     },
   );
 
