@@ -5,6 +5,12 @@ Bu loyihadagi barcha muhim o'zgarishlar shu faylda qayd etiladi.
 Format [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) asosida,
 va bu loyiha [Semantic Versioning](https://semver.org/spec/v2.0.0.html) ga rioya qiladi.
 
+## [1.3.5] - 2025-01-31
+
+### Tuzatildi / Fixed
+- ✅ `android.enableBuildCache` deprecated xatoligi tuzatildi (AGP 7.0+)
+- ✅ Android Gradle Plugin 7.0+ versiyalari bilan moslik
+
 ## [1.3.4] - 2025-01-31
 
 ### Yaxshilandi / Improved

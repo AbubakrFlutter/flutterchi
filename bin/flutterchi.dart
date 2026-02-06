@@ -528,7 +528,7 @@ Future<void> _gradleOptimallash() async {
     'android.enableDexingArtifactTransform': 'true',
     'android.enableDexingArtifactTransform.desugaring': 'true',
     'android.enableResourceOptimizations': 'true', // Yoqildi - tezroq
-    'android.enableBuildCache': 'true', // Build cache
+    // 'android.enableBuildCache' deprecated in AGP 7.0+ - Gradle cache ishlatiladi
     'android.enableD8': 'true', // D8 dexer - tezroq
     'android.enableIncrementalDesugaring': 'true',
     // Kotlin optimizatsiya - MAKSIMAL
