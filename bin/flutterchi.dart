@@ -327,6 +327,67 @@ Future<String> _ishStoliManziliniOlish() async {
   return desktop;
 }
 
+Future<int> _sistemRaminiAniqlash() async {
+  try {
+    if (Platform.isWindows) {
+      // Windows - wmic ishlatish
+      final result = await Process.run(
+        'wmic',
+        ['OS', 'get', 'TotalVisibleMemorySize'],
+        runInShell: true,
+      );
+
+      if (result.exitCode == 0) {
+        final output = result.stdout.toString();
+        final lines = output.split('\n');
+        for (var line in lines) {
+          final trimmed = line.trim();
+          if (trimmed.isNotEmpty && int.tryParse(trimmed) != null) {
+            final kb = int.parse(trimmed);
+            return (kb / 1024 / 1024).round(); // KB -> GB
+          }
+        }
+      }
+    } else if (Platform.isMacOS) {
+      // macOS - sysctl ishlatish
+      final result = await Process.run('sysctl', ['hw.memsize']);
+      if (result.exitCode == 0) {
+        final output = result.stdout.toString().trim();
+        final parts = output.split(':');
+        if (parts.length == 2) {
+          final bytes = int.tryParse(parts[1].trim());
+          if (bytes != null) {
+            return (bytes / 1024 / 1024 / 1024).round(); // Bytes -> GB
+          }
+        }
+      }
+    } else if (Platform.isLinux) {
+      // Linux - /proc/meminfo o'qish
+      final file = File('/proc/meminfo');
+      if (await file.exists()) {
+        final content = await file.readAsString();
+        final lines = content.split('\n');
+        for (var line in lines) {
+          if (line.startsWith('MemTotal:')) {
+            final parts = line.split(RegExp(r'\s+'));
+            if (parts.length >= 2) {
+              final kb = int.tryParse(parts[1]);
+              if (kb != null) {
+                return (kb / 1024 / 1024).round(); // KB -> GB
+              }
+            }
+          }
+        }
+      }
+    }
+  } catch (_) {
+    // Xatolik bo'lsa, default qiymat
+  }
+
+  // Default: 6GB deb hisoblaymiz (o'rtacha)
+  return 6;
+}
+
 void _progressBarniKorsatish(int foiz, String bosqich) {
   const barUzunligi = 30;
   final toldirish = (barUzunligi * foiz / 100).round();
@@ -428,14 +489,26 @@ Future<void> _gradleOptimallash() async {
 
   var content = await gradlePropsFile.readAsString();
 
+  // ADAPTIVE optimizatsiya - kompyuterga qarab avtomatik sozlanadi
+  final systemRam = await _sistemRaminiAniqlash();
+  final isLowEnd = systemRam < 8; // 8GB dan kam = eski kompyuter
+
+  final maxHeap = isLowEnd ? '2048m' : '4096m';
+  final maxWorkers = isLowEnd ? '4' : '6'; // 6 optimal (8 emas)
+  final metaspace = isLowEnd ? '512m' : '768m';
+
+  print(isLowEnd
+    ? '💪 Eski kompyuter rejimi - optimal sozlamalar'
+    : '🚀 Kuchli kompyuter rejimi - maksimal tezlik');
+
   // SUPER optimizatsiya sozlamalari
   final optimizations = {
-    // Memory optimizatsiya - MAKSIMAL
+    // Memory optimizatsiya - ADAPTIVE (kompyuterga qarab)
     'org.gradle.jvmargs':
-        '-Xmx4096m -XX:MaxMetaspaceSize=1024m -XX:+UseParallelGC -XX:ParallelGCThreads=4 -XX:MaxMetaspaceSize=1g -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8',
-    // Parallel build - MAKSIMAL tezlik
+        '-Xmx$maxHeap -XX:MaxMetaspaceSize=$metaspace -XX:+UseParallelGC -XX:ParallelGCThreads=4 -Dfile.encoding=UTF-8',
+    // Parallel build - ADAPTIVE tezlik
     'org.gradle.parallel': 'true',
-    'org.gradle.workers.max': '8', // 4 dan 8 ga oshirildi
+    'org.gradle.workers.max': maxWorkers,
     // Caching - takroriy buildlar uchun
     'org.gradle.caching': 'true',
     'org.gradle.configuration-cache': 'false',
@@ -586,17 +659,23 @@ Future<void> _buyruqniIshgaTushirish(
     }
   }
 
+  // ADAPTIVE environment - kompyuterga qarab
+  final systemRam = await _sistemRaminiAniqlash();
+  final isLowEnd = systemRam < 8;
+  final maxHeap = isLowEnd ? '2048m' : '3072m';
+  final maxWorkers = isLowEnd ? '4' : '6';
+
   final process = await Process.start(
     _flutterCommand!,
     finalArgs,
     runInShell: true,
     environment: {
       ...Platform.environment,
-      // Gradle SUPER optimizatsiya - MAKSIMAL
+      // Gradle SUPER optimizatsiya - ADAPTIVE
       'GRADLE_OPTS':
-          '-Dorg.gradle.parallel=true -Dorg.gradle.caching=true -Dorg.gradle.daemon=true -Dorg.gradle.configureondemand=true -Dorg.gradle.workers.max=8 -Dorg.gradle.vfs.watch=true -Dkotlin.incremental=true -Dkotlin.compiler.execution.strategy=in-process',
-      // Java optimizatsiya - MAKSIMAL
-      'JAVA_OPTS': '-Xmx4096m -XX:+UseParallelGC -XX:ParallelGCThreads=4',
+          '-Dorg.gradle.parallel=true -Dorg.gradle.caching=true -Dorg.gradle.daemon=true -Dorg.gradle.configureondemand=true -Dorg.gradle.workers.max=$maxWorkers -Dorg.gradle.vfs.watch=true -Dkotlin.incremental=true -Dkotlin.compiler.execution.strategy=in-process',
+      // Java optimizatsiya - ADAPTIVE
+      'JAVA_OPTS': '-Xmx$maxHeap -XX:+UseParallelGC -XX:ParallelGCThreads=4',
     },
   );
 

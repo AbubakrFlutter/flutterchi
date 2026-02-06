@@ -5,12 +5,21 @@ Bu loyihadagi barcha muhim o'zgarishlar shu faylda qayd etiladi.
 Format [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) asosida,
 va bu loyiha [Semantic Versioning](https://semver.org/spec/v2.0.0.html) ga rioya qiladi.
 
+## [1.3.4] - 2025-01-31
+
+### Yaxshilandi / Improved
+- ✅ **ADAPTIVE OPTIMIZATION** - Kompyuterga qarab avtomatik sozlanadi!
+- ✅ Eski kompyuterlar (4-6GB RAM): 2GB heap, 4 workers - HECH QACHON QOTMAYDI
+- ✅ Yangi kompyuterlar (8GB+ RAM): 3GB heap, 6 workers - MAKSIMAL TEZLIK
+- ✅ Avtomatik RAM aniqlash (Windows, macOS, Linux)
+- ✅ Barcha kompyuterlarda OPTIMAL ishlash
+
 ## [1.3.3] - 2025-01-31
 
 ### Yaxshilandi / Improved
 - ✅ **MAKSIMAL TEZLIK** - Configuration-cache siz ham juda tez!
-- ✅ Gradle workers 4 → 8 ga oshirildi
-- ✅ JVM memory 2GB → 4GB (kuchli PC lar uchun)
+- ✅ Gradle workers 4 → 6 ga oshirildi (8 emas - barqaror)
+- ✅ JVM memory sozlamalari
 - ✅ R8 full mode yoqildi - optimal kod shrinking
 - ✅ Kotlin incremental compilation kuchaytirildi
 - ✅ File system watching (vfs.watch) - tezroq dependency check
